@@ -9,10 +9,13 @@
 UCLASS(MinimalAPI)
 class AProjectShellGameMode : public AGameModeBase
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	AProjectShellGameMode();
+    AProjectShellGameMode();
+
+private:
+    UClass* _playerTestBP;
 };
 
 
