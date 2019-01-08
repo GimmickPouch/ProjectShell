@@ -20,9 +20,8 @@ const FName ABaseTank::kFireRightBinding("FireRight");
 ABaseTank::ABaseTank()
 {
     // Create the mesh component
-    RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-    _tankStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TankMesh"));
-    _tankStaticMesh->SetupAttachment(RootComponent);
+    RootComponent = _tankStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TankMesh"));
+    //_tankStaticMesh->SetupAttachment(RootComponent);
     _tankStaticMesh->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
     static ConstructorHelpers::FObjectFinder<UStaticMesh> tankMesh(TEXT("/Game/TwinStick/Meshes/TwinStickUFO.TwinStickUFO"));
     if (tankMesh.Succeeded())
