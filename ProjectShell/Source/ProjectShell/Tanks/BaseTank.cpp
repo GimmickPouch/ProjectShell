@@ -10,6 +10,7 @@
 #include "Engine/CollisionProfile.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
+#include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 
 const FName ABaseTank::kMoveForwardBinding("MoveForward");
 const FName ABaseTank::kMoveRightBinding("MoveRight");
@@ -29,6 +30,12 @@ ABaseTank::ABaseTank()
         _tankStaticMesh->SetStaticMesh(tankMesh.Object);
     }
 
+    _cannonBase = CreateDefaultSubobject<USceneComponent>(TEXT("CannonPivot"));
+    _cannonBase->SetupAttachment(_tankStaticMesh);
+
+    _cannonStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CannonMesh"));
+    _cannonStaticMesh->SetupAttachment(_cannonBase);
+
     // Cache our sound effect
     static ConstructorHelpers::FObjectFinder<USoundBase> fireAudio(TEXT("/Game/TwinStick/Audio/TwinStickFire.TwinStickFire"));
     if (fireAudio.Succeeded())
@@ -43,6 +50,7 @@ ABaseTank::ABaseTank()
     _bulletSpawnOffset = FVector(90.f, 0.f, 0.f);
     _fireRate = 0.1f;
     _canFire = true;
+    _cannonRotation = FRotator();
 }
 
 void ABaseTank::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -54,67 +62,82 @@ void ABaseTank::SetupPlayerInputComponent(class UInputComponent* PlayerInputComp
     PlayerInputComponent->BindAxis(kMoveRightBinding);
     PlayerInputComponent->BindAxis(kFireForwardBinding);
     PlayerInputComponent->BindAxis(kFireRightBinding);
+
+    PlayerInputComponent->BindAction("FireShot", IE_Pressed, this, &ABaseTank::FireShot);
 }
 
 void ABaseTank::Tick(float DeltaSeconds)
 {
-    // Find movement direction
-    const float ForwardValue = GetInputAxisValue(kMoveForwardBinding);
-    const float RightValue = GetInputAxisValue(kMoveRightBinding);
-
-    // Clamp max size so that (X=1, Y=1) doesn't cause faster movement in diagonal directions
-    const FVector MoveDirection = FVector(ForwardValue, RightValue, 0.f).GetClampedToMaxSize(1.0f);
-
-    // Calculate  movement
-    const FVector Movement = MoveDirection * _moveSpeed * DeltaSeconds;
-
-    // If non-zero size, move this actor
-    if (Movement.SizeSquared() > 0.0f)
-    {
-        const FRotator NewRotation = Movement.Rotation();
-        FHitResult Hit(1.f);
-        RootComponent->MoveComponent(Movement, NewRotation, true, &Hit);
-
-        if (Hit.IsValidBlockingHit())
-        {
-            const FVector Normal2D = Hit.Normal.GetSafeNormal2D();
-            const FVector Deflection = FVector::VectorPlaneProject(Movement, Normal2D) * (1.f - Hit.Time);
-            RootComponent->MoveComponent(Deflection, NewRotation, true);
-        }
-    }
-
-    // Create fire direction vector
-    const float FireForwardValue = GetInputAxisValue(kFireForwardBinding);
-    const float FireRightValue = GetInputAxisValue(kFireRightBinding);
-    const FVector FireDirection = FVector(FireForwardValue, FireRightValue, 0.f);
-
-    // Try and fire a shot
-    FireShot(FireDirection);
+    UpdateTankLocation();
+    UpdateCannonRotation();
 }
 
-void ABaseTank::FireShot(FVector FireDirection)
+void ABaseTank::UpdateTankLocation()
 {
-    // If it's ok to fire again
-    if (_canFire == true)
+    // Find movement direction
+    const float forwardValue = GetInputAxisValue(kMoveForwardBinding);
+    const float rightValue = GetInputAxisValue(kMoveRightBinding);
+
+    // Clamp max size so that (X=1, Y=1) doesn't cause faster movement in diagonal directions
+    const FVector moveDirection = FVector(forwardValue, rightValue, 0.f).GetClampedToMaxSize(1.0f);
+
+    // Calculate  movement
+    const FVector movement = moveDirection * _moveSpeed * GetWorld()->GetDeltaSeconds();
+
+    // If non-zero size, move this actor
+    if (movement.SizeSquared() > 0.0f)
     {
-        // If we are pressing fire stick in a direction
-        if (FireDirection.SizeSquared() > 0.0f)
+        const FRotator newRotation = movement.Rotation();
+        FHitResult hit(1.f);
+        RootComponent->MoveComponent(movement, newRotation, true, &hit);
+
+        if (hit.IsValidBlockingHit())
         {
-            const FRotator FireRotation = FireDirection.Rotation();
+            const FVector normal2D = hit.Normal.GetSafeNormal2D();
+            const FVector deflection = FVector::VectorPlaneProject(movement, normal2D) * (1.f - hit.Time);
+            RootComponent->MoveComponent(deflection, newRotation, true);
+        }
+
+        // Reset cannon rotation as it's parented to the tank
+        _cannonBase->SetWorldRotation(_cannonRotation);
+    }
+}
+
+void ABaseTank::UpdateCannonRotation()
+{
+    const float fireForwardValue = GetInputAxisValue(kFireForwardBinding);
+    const float fireRightValue = GetInputAxisValue(kFireRightBinding);
+    const FVector fireDirection = FVector(fireForwardValue, fireRightValue, 0.f);
+
+    // If we are pressing cannon aim stick in a direction
+    if (fireDirection.SizeSquared() > 0.0f)
+    {
+        _cannonRotation = fireDirection.Rotation();
+        _cannonBase->SetWorldRotation(_cannonRotation);
+    }
+}
+
+void ABaseTank::FireShot()
+{
+    FireShot(_cannonRotation.Vector());
+}
+
+void ABaseTank::FireShot(FVector fireDirection)
+{
+    // If we can fire and we are pressing fire stick in a direction
+    if (_canFire && fireDirection.SizeSquared() > 0.0f)
+    {
+        UWorld* const world = GetWorld();
+        if (world)
+        {
+            const FRotator fireRotation = fireDirection.Rotation();
             // Spawn projectile at an offset from this pawn
-            const FVector SpawnLocation = GetActorLocation() + FireRotation.RotateVector(_bulletSpawnOffset);
+            const FVector spawnLocation = GetActorLocation() + fireRotation.RotateVector(_bulletSpawnOffset);
+            // Spawn the projectile
+            world->SpawnActor<AProjectShellProjectile>(spawnLocation, fireRotation);
+            world->GetTimerManager().SetTimer(_fireCooldownTimerHandle, this, &ABaseTank::ShotCooldownExpired, _fireRate);
 
-            UWorld* const World = GetWorld();
-            if (World != NULL)
-            {
-                // spawn the projectile
-                World->SpawnActor<AProjectShellProjectile>(SpawnLocation, FireRotation);
-            }
-
-            _canFire = false;
-            World->GetTimerManager().SetTimer(_fireCooldownTimerHandle, this, &ABaseTank::ShotTimerExpired, _fireRate);
-
-            // try and play the sound if specified
+            // Try and play the sound if specified
             if (_fireSound != nullptr)
             {
                 UGameplayStatics::PlaySoundAtLocation(this, _fireSound, GetActorLocation());
@@ -125,7 +148,7 @@ void ABaseTank::FireShot(FVector FireDirection)
     }
 }
 
-void ABaseTank::ShotTimerExpired()
+void ABaseTank::ShotCooldownExpired()
 {
     _canFire = true;
 }

@@ -21,9 +21,13 @@ protected:
 
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+    void UpdateTankLocation();
+
     // Weapons
+    void UpdateCannonRotation();
+    void FireShot();
     void FireShot(FVector FireDirection);
-    void ShotTimerExpired();
+    void ShotCooldownExpired();
 
 protected:
     static const FName kMoveForwardBinding;
@@ -33,6 +37,12 @@ protected:
 
     UPROPERTY(Category = Mesh, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
         class UStaticMeshComponent* _tankStaticMesh;
+
+    UPROPERTY(Category = Mesh, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+        class USceneComponent* _cannonBase;
+
+    UPROPERTY(Category = Mesh, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+        class UStaticMeshComponent* _cannonStaticMesh;
 
     UPROPERTY(Category = Gameplay, EditAnywhere, BlueprintReadWrite)
         FVector _bulletSpawnOffset;
@@ -46,9 +56,9 @@ protected:
     UPROPERTY(Category = Audio, EditDefaultsOnly, BlueprintReadWrite)
         class USoundBase* _fireSound;
 
-    FTimerHandle _fireCooldownTimerHandle;
-
     bool _canFire;
+    FRotator _cannonRotation;
+    FTimerHandle _fireCooldownTimerHandle;
 
 public:
     /** Returns Static Mesh of tank **/
