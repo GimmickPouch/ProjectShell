@@ -29,6 +29,19 @@ protected:
     void FireShot(FVector FireDirection);
     void ShotCooldownExpired();
 
+    // Abilities
+protected:
+    void ActivateSpecialAbility();
+    void ActivateDefensiveAbility();
+
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Abilities")
+        void SpecialAbilityAction();
+    virtual void SpecialAbilityAction_Implementation();
+
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Abilities")
+        void DefensiveAbilityAction();
+    virtual void DefensiveAbilityAction_Implementation();
+
 protected:
     static const FName kMoveForwardBinding;
     static const FName kMoveRightBinding;

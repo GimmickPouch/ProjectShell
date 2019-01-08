@@ -63,6 +63,9 @@ void ABaseTank::SetupPlayerInputComponent(class UInputComponent* PlayerInputComp
     PlayerInputComponent->BindAxis(kFireRightBinding);
 
     PlayerInputComponent->BindAction("FireShot", IE_Pressed, this, &ABaseTank::FireShot);
+
+    PlayerInputComponent->BindAction("SpecialAbility", IE_Pressed, this, &ABaseTank::ActivateSpecialAbility);
+    PlayerInputComponent->BindAction("DefensiveAbility", IE_Pressed, this, &ABaseTank::ActivateDefensiveAbility);
 }
 
 void ABaseTank::Tick(float DeltaSeconds)
@@ -150,4 +153,26 @@ void ABaseTank::FireShot(FVector fireDirection)
 void ABaseTank::ShotCooldownExpired()
 {
     _canFire = true;
+}
+
+void ABaseTank::ActivateSpecialAbility()
+{
+    // TODO cooldown etc
+    SpecialAbilityAction();
+}
+
+void ABaseTank::ActivateDefensiveAbility()
+{
+    // TODO cooldown etc
+    DefensiveAbilityAction();
+}
+
+void ABaseTank::SpecialAbilityAction_Implementation()
+{
+    // Base implementation to be extended by Blueprint...
+}
+
+void ABaseTank::DefensiveAbilityAction_Implementation()
+{
+    // Base implementation to be extended by Blueprint...
 }
