@@ -23,7 +23,7 @@ protected:
 
     void UpdateTankLocation();
 
-    // Weapons
+    // Shooting
     void UpdateCannonRotation();
     void FireShot();
     void FireShot(FVector FireDirection);
@@ -58,23 +58,27 @@ protected:
         class UStaticMeshComponent* _cannonStaticMesh;
 
     UPROPERTY(Category = Gameplay, EditAnywhere, BlueprintReadWrite)
-        FVector _bulletSpawnOffset;
-
-    UPROPERTY(Category = Gameplay, EditAnywhere, BlueprintReadWrite)
-        float _fireRate;
-
-    UPROPERTY(Category = Gameplay, EditAnywhere, BlueprintReadWrite)
         float _moveSpeed;
 
-    UPROPERTY(Category = Audio, EditDefaultsOnly, BlueprintReadWrite)
-        class USoundBase* _fireSound;
+    // Shooting
+    UPROPERTY(Category = "Shooting", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+        UClass* _defaultProjectile;
+
+    UPROPERTY(Category = "Shooting", EditAnywhere, BlueprintReadWrite)
+        FVector _bulletSpawnOffset;
+
+    UPROPERTY(Category = "Shooting", EditAnywhere, BlueprintReadWrite)
+        float _fireRate;
 
     bool _canFire;
     FRotator _cannonRotation;
     FTimerHandle _fireCooldownTimerHandle;
 
 public:
-    /** Returns Static Mesh of tank **/
     FORCEINLINE class UStaticMeshComponent* GetStaticMesh() const { return _tankStaticMesh; }
     
+    // Audio 
+protected:
+    UPROPERTY(Category = Audio, EditDefaultsOnly, BlueprintReadWrite)
+        class USoundBase* _fireSound;
 };

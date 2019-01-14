@@ -11,6 +11,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
+#include "Projectiles/BaseProjectile.h"
 
 const FName ABaseTank::kMoveForwardBinding("MoveForward");
 const FName ABaseTank::kMoveRightBinding("MoveRight");
@@ -34,6 +35,12 @@ ABaseTank::ABaseTank()
 
     _cannonStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CannonMesh"));
     _cannonStaticMesh->SetupAttachment(_cannonBase);
+
+    static ConstructorHelpers::FObjectFinder<UClass> testProjectileBP(TEXT("Class'/Game/Blueprints/Projectiles/TestProjectile.TestProjectile_C'"));
+    if (testProjectileBP.Succeeded())
+    {
+        _defaultProjectile = testProjectileBP.Object;
+    }
 
     // Cache our sound effect
     static ConstructorHelpers::FObjectFinder<USoundBase> fireAudio(TEXT("/Game/TwinStick/Audio/TwinStickFire.TwinStickFire"));
@@ -130,13 +137,14 @@ void ABaseTank::FireShot(FVector fireDirection)
     if (_canFire && fireDirection.SizeSquared() > 0.0f)
     {
         UWorld* const world = GetWorld();
-        if (world)
+        if (world && _defaultProjectile)
         {
             const FRotator fireRotation = fireDirection.Rotation();
             // Spawn projectile at an offset from this pawn
             const FVector spawnLocation = GetActorLocation() + fireRotation.RotateVector(_bulletSpawnOffset);
             // Spawn the projectile
-            world->SpawnActor<AProjectShellProjectile>(spawnLocation, fireRotation);
+            const FActorSpawnParameters spawnParams = FActorSpawnParameters();
+            world->SpawnActor<ABaseProjectile>(_defaultProjectile, spawnLocation, fireRotation, spawnParams);
             world->GetTimerManager().SetTimer(_fireCooldownTimerHandle, this, &ABaseTank::ShotCooldownExpired, _fireRate);
 
             // Try and play the sound if specified

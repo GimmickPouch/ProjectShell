@@ -17,10 +17,19 @@ public:
 protected:
     virtual void BeginPlay() override;
 
-public:	
     virtual void Tick(float DeltaTime) override;
 
-    UPROPERTY(Category = Mesh, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-        class UStaticMeshComponent* _bulletMesh;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile, meta = (AllowPrivateAccess = "true"))
+        UStaticMeshComponent* _projectileMesh;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+        class UProjectileMovementComponent* _projectileMovement;
+
+public:
+    UFUNCTION()
+        void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+    FORCEINLINE UStaticMeshComponent* GetProjectileMesh() const { return _projectileMesh; }
+    FORCEINLINE UProjectileMovementComponent* GetProjectileMovement() const { return _projectileMovement; }
     
 };
