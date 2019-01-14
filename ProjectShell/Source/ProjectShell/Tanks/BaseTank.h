@@ -48,20 +48,24 @@ protected:
     static const FName kFireForwardBinding;
     static const FName kFireRightBinding;
 
-    UPROPERTY(Category = Mesh, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(Category = Mesh, EditDefaultsOnly, BlueprintReadOnly)
         class UStaticMeshComponent* _tankStaticMesh;
 
-    UPROPERTY(Category = Mesh, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(Category = Mesh, EditDefaultsOnly, BlueprintReadOnly)
         class USceneComponent* _cannonBase;
 
-    UPROPERTY(Category = Mesh, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(Category = Mesh, EditDefaultsOnly, BlueprintReadOnly)
         class UStaticMeshComponent* _cannonStaticMesh;
 
     UPROPERTY(Category = Gameplay, EditAnywhere, BlueprintReadWrite)
         float _moveSpeed;
 
+    // Health
+    UPROPERTY(Category = Health, VisibleAnywhere, BlueprintReadOnly)
+        class UHealthComponent* _healthComponent;
+
     // Shooting
-    UPROPERTY(Category = "Shooting", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(Category = "Shooting", EditAnywhere, BlueprintReadWrite)
         UClass* _defaultProjectile;
 
     UPROPERTY(Category = "Shooting", EditAnywhere, BlueprintReadWrite)
@@ -75,7 +79,10 @@ protected:
     FTimerHandle _fireCooldownTimerHandle;
 
 public:
+    UFUNCTION(BlueprintCallable, Category = "Get/Set")
     FORCEINLINE class UStaticMeshComponent* GetStaticMesh() const { return _tankStaticMesh; }
+    UFUNCTION(BlueprintCallable, Category = "Get/Set")
+    FORCEINLINE class UHealthComponent* GetHealthComponent() const { return _healthComponent; }
     
     // Audio 
 protected:

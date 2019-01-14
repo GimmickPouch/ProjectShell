@@ -32,6 +32,9 @@ ABaseProjectile::ABaseProjectile()
     _projectileMovement->bRotationFollowsVelocity = true;
     _projectileMovement->bShouldBounce = true;
     _projectileMovement->ProjectileGravityScale = 0.f; // No gravity
+
+    // Defaults
+    _damage = 1.f;
 }
 
 void ABaseProjectile::BeginPlay()

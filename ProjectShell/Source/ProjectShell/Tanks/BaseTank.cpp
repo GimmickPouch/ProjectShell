@@ -12,6 +12,7 @@
 #include "Sound/SoundBase.h"
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 #include "Projectiles/BaseProjectile.h"
+#include "Components/HealthComponent.h"
 
 const FName ABaseTank::kMoveForwardBinding("MoveForward");
 const FName ABaseTank::kMoveRightBinding("MoveRight");
@@ -41,6 +42,8 @@ ABaseTank::ABaseTank()
     {
         _defaultProjectile = testProjectileBP.Object;
     }
+    
+    _healthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 
     // Cache our sound effect
     static ConstructorHelpers::FObjectFinder<USoundBase> fireAudio(TEXT("/Game/TwinStick/Audio/TwinStickFire.TwinStickFire"));
@@ -52,8 +55,8 @@ ABaseTank::ABaseTank()
     // Movement
     _moveSpeed = 1000.0f;
 
-    // Weapon
-    _bulletSpawnOffset = FVector(90.f, 0.f, 0.f);
+    // Shooting
+    _bulletSpawnOffset = FVector(120.f, 0.f, 0.f);
     _fireRate = 0.1f;
     _canFire = true;
     _cannonRotation = FRotator();
