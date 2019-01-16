@@ -67,5 +67,6 @@ DerivedDataCache/*
 
 ProjectShell/Intermediate/*
 ProjectShell/Saved/*
-ProjectShell/Binaries/Win64/
+ProjectShell/Binaries/Win64/*
+ProjectShell/enc_temp_folder/*
 

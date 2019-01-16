@@ -4,6 +4,7 @@
 //#include "ProjectShellPawn.h"
 #include "Tanks/BaseTank.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 
 AProjectShellGameMode::AProjectShellGameMode()
 {
@@ -17,3 +18,14 @@ AProjectShellGameMode::AProjectShellGameMode()
     DefaultPawnClass = _playerTestBP; //ABaseTank::StaticClass(); //AProjectShellPawn::StaticClass();
 }
 
+void AProjectShellGameMode::StartPlay()
+{
+    Super::StartPlay();
+
+    auto world = (UObject*)GetWorld();
+    if (world != nullptr)
+    {
+        UGameplayStatics::CreatePlayer(world, 1, true);
+        UGameplayStatics::CreatePlayer(world, 2, true);
+    }
+}

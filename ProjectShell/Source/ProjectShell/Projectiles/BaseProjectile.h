@@ -30,12 +30,16 @@ public:
         void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
     UFUNCTION(BlueprintCallable, Category = "Get/Set")
-    FORCEINLINE UStaticMeshComponent* GetProjectileMesh() const { return _projectileMesh; }
+        FORCEINLINE UStaticMeshComponent* GetProjectileMesh() const { return _projectileMesh; }
     UFUNCTION(BlueprintCallable, Category = "Get/Set")
-    FORCEINLINE UProjectileMovementComponent* GetProjectileMovement() const { return _projectileMovement; }
+        FORCEINLINE UProjectileMovementComponent* GetProjectileMovement() const { return _projectileMovement; }
 
+protected:
     // Variables
     UPROPERTY(Category = "Damage", EditDefaultsOnly, BlueprintReadWrite)
         float _damage;
     
+public:
+    UFUNCTION(BlueprintCallable, Category = "Get/Set")
+        FORCEINLINE float GetDamage() const { return _damage; }
 };

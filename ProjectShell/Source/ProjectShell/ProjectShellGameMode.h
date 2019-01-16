@@ -15,6 +15,8 @@ public:
     AProjectShellGameMode();
 
 private:
+    void StartPlay();
+
     UClass* _playerTestBP;
 };
 

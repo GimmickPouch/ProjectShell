@@ -23,6 +23,13 @@ protected:
 
     void UpdateTankLocation();
 
+    // Collision
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+        class UBoxComponent* _collisionBox;
+
+    UFUNCTION()
+        void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
     // Shooting
     void UpdateCannonRotation();
     void FireShot();

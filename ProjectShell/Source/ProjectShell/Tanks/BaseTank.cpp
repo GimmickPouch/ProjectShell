@@ -13,6 +13,7 @@
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 #include "Projectiles/BaseProjectile.h"
 #include "Components/HealthComponent.h"
+#include "Runtime/Engine/Classes/Components/BoxComponent.h"
 
 const FName ABaseTank::kMoveForwardBinding("MoveForward");
 const FName ABaseTank::kMoveRightBinding("MoveRight");
@@ -24,12 +25,18 @@ ABaseTank::ABaseTank()
     // Create the mesh component
     RootComponent = _tankStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TankMesh"));
     //_tankStaticMesh->SetupAttachment(RootComponent);
-    _tankStaticMesh->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
+    //_tankStaticMesh->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
     static ConstructorHelpers::FObjectFinder<UStaticMesh> tankMesh(TEXT("/Game/TwinStick/Meshes/TwinStickUFO.TwinStickUFO"));
     if (tankMesh.Succeeded())
     {
         _tankStaticMesh->SetStaticMesh(tankMesh.Object);
     }
+
+    _collisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
+    _collisionBox->SetupAttachment(_tankStaticMesh);
+    _collisionBox->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
+    _collisionBox->SetCanEverAffectNavigation(true);
+    _collisionBox->OnComponentHit.AddDynamic(this, &ABaseTank::OnHit);
 
     _cannonBase = CreateDefaultSubobject<USceneComponent>(TEXT("CannonPivot"));
     _cannonBase->SetupAttachment(_tankStaticMesh);
@@ -112,6 +119,25 @@ void ABaseTank::UpdateTankLocation()
 
         // Reset cannon rotation as it's parented to the tank
         _cannonBase->SetWorldRotation(_cannonRotation);
+    }
+}
+
+void ABaseTank::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+    // Only add impulse and destroy projectile if we hit a physics
+    if (OtherActor && OtherActor != this)
+    {
+        if (OtherActor->IsA(ABaseProjectile::StaticClass()))
+        {
+            ABaseProjectile* projectile = Cast<ABaseProjectile>(OtherActor);
+            if (projectile && _healthComponent)
+            {
+                if (_healthComponent->TakeDamageAndCheckDeath(projectile->GetDamage()))
+                {
+                    Destroy();
+                }
+            }
+        }
     }
 }
 
