@@ -9,11 +9,12 @@
 
 AProjectShellGameMode::AProjectShellGameMode()
 {
-    static ConstructorHelpers::FObjectFinder<UClass> testTankBP(TEXT("Class'/Game/Blueprints/Tanks/TestPhysicsTank.TestPhysicsTank_C'"));
-    if (testTankBP.Succeeded())
-    {
-        _playerTestBP = testTankBP.Object;
-    }
+    // TODO blueprint for new physics tank
+    //static ConstructorHelpers::FObjectFinder<UClass> testTankBP(TEXT("Class'/Game/Blueprints/Tanks/TestPhysicsTank.TestPhysicsTank_C'"));
+    //if (testTankBP.Succeeded())
+    //{
+    //    _playerTestBP = testTankBP.Object;
+    //}
 
     // set default pawn class to our character class
     DefaultPawnClass = ABasePTank::StaticClass(); //_playerTestBP; //ABaseTank::StaticClass(); //AProjectShellPawn::StaticClass();

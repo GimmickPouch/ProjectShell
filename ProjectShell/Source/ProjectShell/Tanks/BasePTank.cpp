@@ -84,12 +84,14 @@ void ABasePTank::UpdateTankLocation()
     const FVector moveDirection = FVector(forwardValue, rightValue, 0.f).GetClampedToMaxSize(1.0f);
 
     // Calculate  movement
-    const FVector movement = moveDirection * 1000.f * GetWorld()->GetDeltaSeconds();
+    //const FVector movement = moveDirection * 1000.f * GetWorld()->GetDeltaSeconds();
 
     // If non-zero size, move this actor
-    if (movement.SizeSquared() != 0.0f)
+    if (moveDirection.SizeSquared() != 0.0f)
     {
-        this->SetActorRotation(movement.Rotation(), ETeleportType::TeleportPhysics);
+        this->SetActorRotation(moveDirection.Rotation(), ETeleportType::TeleportPhysics);
+        //GetVehicleMovement()->Velocity = FVector(100.f, 100.f, 10.f);
+        //GetVehicleMovement()->UpdateComponentVelocity();
         //const FRotator newRotation = movement.Rotation();
         //FHitResult hit(1.f);
         //RootComponent->MoveComponent(FVector(0.f,0.f,0.f), newRotation, true, &hit);
