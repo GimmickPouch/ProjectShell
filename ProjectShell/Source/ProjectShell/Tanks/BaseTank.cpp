@@ -23,50 +23,41 @@ const FName ABaseTank::kFireRightBinding("FireRight");
 ABaseTank::ABaseTank()
 {
     // Create the mesh component
-    RootComponent = _tankStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TankMesh"));
-    //_tankStaticMesh->SetupAttachment(RootComponent);
-    //_tankStaticMesh->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
-    static ConstructorHelpers::FObjectFinder<UStaticMesh> tankMesh(TEXT("/Game/TwinStick/Meshes/TwinStickUFO.TwinStickUFO"));
-    if (tankMesh.Succeeded())
-    {
-        _tankStaticMesh->SetStaticMesh(tankMesh.Object);
-    }
+    TankMainBodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TankMesh"));
+    TankMainBodyMesh->SetSimulatePhysics(true);
+    RootComponent = TankMainBodyMesh;
+    TankMainBodyMesh->OnComponentHit.AddDynamic(this, &ABaseTank::OnHit);
+    TankMainBodyMesh->bGenerateOverlapEvents = true;
 
-    _collisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
-    _collisionBox->SetupAttachment(_tankStaticMesh);
-    _collisionBox->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
-    _collisionBox->SetCanEverAffectNavigation(true);
-    _collisionBox->OnComponentHit.AddDynamic(this, &ABaseTank::OnHit);
+    CannonBase = CreateDefaultSubobject<USceneComponent>(TEXT("CannonPivot"));
+    CannonBase->SetupAttachment(TankMainBodyMesh);
 
-    _cannonBase = CreateDefaultSubobject<USceneComponent>(TEXT("CannonPivot"));
-    _cannonBase->SetupAttachment(_tankStaticMesh);
-
-    _cannonStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CannonMesh"));
-    _cannonStaticMesh->SetupAttachment(_cannonBase);
+    CannonStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CannonMesh"));
+    CannonStaticMesh->SetupAttachment(CannonBase);
 
     static ConstructorHelpers::FObjectFinder<UClass> testProjectileBP(TEXT("Class'/Game/Blueprints/Projectiles/TestProjectile.TestProjectile_C'"));
     if (testProjectileBP.Succeeded())
     {
-        _defaultProjectile = testProjectileBP.Object;
+        DefaultProjectile = testProjectileBP.Object;
     }
     
-    _healthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+    HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 
     // Cache our sound effect
     static ConstructorHelpers::FObjectFinder<USoundBase> fireAudio(TEXT("/Game/TwinStick/Audio/TwinStickFire.TwinStickFire"));
     if (fireAudio.Succeeded())
     {
-        _fireSound = fireAudio.Object;
+        FireSound = fireAudio.Object;
     }
 
     // Movement
-    _moveSpeed = 1000.0f;
+    MoveSpeed = 1000.0f;
 
     // Shooting
-    _bulletSpawnOffset = FVector(120.f, 0.f, 0.f);
-    _fireRate = 0.1f;
-    _canFire = true;
-    _cannonRotation = FRotator();
+    BulletSpawnOffset = FVector(120.f, 0.f, 0.f);
+    FireRate = 0.1f;
+    bCanFire = true;
+    CannonRotation = FRotator();
 }
 
 void ABaseTank::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -101,24 +92,16 @@ void ABaseTank::UpdateTankLocation()
     const FVector moveDirection = FVector(forwardValue, rightValue, 0.f).GetClampedToMaxSize(1.0f);
 
     // Calculate  movement
-    const FVector movement = moveDirection * _moveSpeed * GetWorld()->GetDeltaSeconds();
+    const FVector movement = moveDirection * MoveSpeed * GetWorld()->GetDeltaSeconds();
 
     // If non-zero size, move this actor
     if (movement.SizeSquared() > 0.0f)
     {
         const FRotator newRotation = movement.Rotation();
-        FHitResult hit(1.f);
-        RootComponent->MoveComponent(movement, newRotation, true, &hit);
-
-        if (hit.IsValidBlockingHit())
-        {
-            const FVector normal2D = hit.Normal.GetSafeNormal2D();
-            const FVector deflection = FVector::VectorPlaneProject(movement, normal2D) * (1.f - hit.Time);
-            RootComponent->MoveComponent(deflection, newRotation, true);
-        }
+        RootComponent->MoveComponent(movement, newRotation, false);
 
         // Reset cannon rotation as it's parented to the tank
-        _cannonBase->SetWorldRotation(_cannonRotation);
+        CannonBase->SetWorldRotation(CannonRotation);
     }
 }
 
@@ -130,9 +113,9 @@ void ABaseTank::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimiti
         if (OtherActor->IsA(ABaseProjectile::StaticClass()))
         {
             ABaseProjectile* projectile = Cast<ABaseProjectile>(OtherActor);
-            if (projectile && _healthComponent)
+            if (projectile && HealthComponent)
             {
-                if (_healthComponent->TakeDamageAndCheckDeath(projectile->GetDamage()))
+                if (HealthComponent->TakeDamageAndCheckDeath(projectile->GetDamage()))
                 {
                     Destroy();
                 }
@@ -150,46 +133,46 @@ void ABaseTank::UpdateCannonRotation()
     // If we are pressing cannon aim stick in a direction
     if (fireDirection.SizeSquared() > 0.0f)
     {
-        _cannonRotation = fireDirection.Rotation();
-        _cannonBase->SetWorldRotation(_cannonRotation);
+        CannonRotation = fireDirection.Rotation();
+        CannonBase->SetWorldRotation(CannonRotation);
     }
 }
 
 void ABaseTank::FireShot()
 {
-    FireShot(_cannonRotation.Vector());
+    FireShot(CannonRotation.Vector());
 }
 
 void ABaseTank::FireShot(FVector fireDirection)
 {
     // If we can fire and we are pressing fire stick in a direction
-    if (_canFire && fireDirection.SizeSquared() > 0.0f)
+    if (bCanFire && fireDirection.SizeSquared() > 0.0f)
     {
         UWorld* const world = GetWorld();
-        if (world && _defaultProjectile)
+        if (world && DefaultProjectile)
         {
             const FRotator fireRotation = fireDirection.Rotation();
             // Spawn projectile at an offset from this pawn
-            const FVector spawnLocation = GetActorLocation() + fireRotation.RotateVector(_bulletSpawnOffset);
+            const FVector spawnLocation = TankMainBodyMesh->GetComponentLocation() + fireRotation.RotateVector(BulletSpawnOffset);
             // Spawn the projectile
             const FActorSpawnParameters spawnParams = FActorSpawnParameters();
-            world->SpawnActor<ABaseProjectile>(_defaultProjectile, spawnLocation, fireRotation, spawnParams);
-            world->GetTimerManager().SetTimer(_fireCooldownTimerHandle, this, &ABaseTank::ShotCooldownExpired, _fireRate);
+            world->SpawnActor<ABaseProjectile>(DefaultProjectile, spawnLocation, fireRotation, spawnParams);
+            world->GetTimerManager().SetTimer(FireCooldownTimerHandle, this, &ABaseTank::ShotCooldownExpired, FireRate);
 
             // Try and play the sound if specified
-            if (_fireSound != nullptr)
+            if (FireSound != nullptr)
             {
-                UGameplayStatics::PlaySoundAtLocation(this, _fireSound, GetActorLocation());
+                UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
             }
 
-            _canFire = false;
+            bCanFire = false;
         }
     }
 }
 
 void ABaseTank::ShotCooldownExpired()
 {
-    _canFire = true;
+    bCanFire = true;
 }
 
 void ABaseTank::ActivateSpecialAbility()

@@ -23,10 +23,6 @@ protected:
 
     void UpdateTankLocation();
 
-    // Collision
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-        class UBoxComponent* _collisionBox;
-
     UFUNCTION()
         void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
@@ -56,43 +52,43 @@ protected:
     static const FName kFireRightBinding;
 
     UPROPERTY(Category = Mesh, EditDefaultsOnly, BlueprintReadOnly)
-        class UStaticMeshComponent* _tankStaticMesh;
+        class UStaticMeshComponent* TankMainBodyMesh;
 
     UPROPERTY(Category = Mesh, EditDefaultsOnly, BlueprintReadOnly)
-        class USceneComponent* _cannonBase;
+        class USceneComponent* CannonBase;
 
     UPROPERTY(Category = Mesh, EditDefaultsOnly, BlueprintReadOnly)
-        class UStaticMeshComponent* _cannonStaticMesh;
+        class UStaticMeshComponent* CannonStaticMesh;
 
     UPROPERTY(Category = Gameplay, EditAnywhere, BlueprintReadWrite)
-        float _moveSpeed;
+        float MoveSpeed;
 
     // Health
     UPROPERTY(Category = Health, VisibleAnywhere, BlueprintReadOnly)
-        class UHealthComponent* _healthComponent;
+        class UHealthComponent* HealthComponent;
 
     // Shooting
     UPROPERTY(Category = "Shooting", EditAnywhere, BlueprintReadWrite)
-        UClass* _defaultProjectile;
+        UClass* DefaultProjectile;
 
     UPROPERTY(Category = "Shooting", EditAnywhere, BlueprintReadWrite)
-        FVector _bulletSpawnOffset;
+        FVector BulletSpawnOffset;
 
     UPROPERTY(Category = "Shooting", EditAnywhere, BlueprintReadWrite)
-        float _fireRate;
+        float FireRate;
 
-    bool _canFire;
-    FRotator _cannonRotation;
-    FTimerHandle _fireCooldownTimerHandle;
+    bool bCanFire;
+    FRotator CannonRotation;
+    FTimerHandle FireCooldownTimerHandle;
 
 public:
     UFUNCTION(BlueprintCallable, Category = "Get/Set")
-    FORCEINLINE class UStaticMeshComponent* GetStaticMesh() const { return _tankStaticMesh; }
+    FORCEINLINE class UStaticMeshComponent* GetStaticMesh() const { return TankMainBodyMesh; }
     UFUNCTION(BlueprintCallable, Category = "Get/Set")
-    FORCEINLINE class UHealthComponent* GetHealthComponent() const { return _healthComponent; }
+    FORCEINLINE class UHealthComponent* GetHealthComponent() const { return HealthComponent; }
     
     // Audio 
 protected:
     UPROPERTY(Category = Audio, EditDefaultsOnly, BlueprintReadWrite)
-        class USoundBase* _fireSound;
+        class USoundBase* FireSound;
 };
