@@ -8,23 +8,14 @@
 
 AProjectShellGameMode::AProjectShellGameMode()
 {
-<<<<<<< HEAD
-    // TODO blueprint for new physics tank
-    static ConstructorHelpers::FObjectFinder<UClass> testTankBP(TEXT("Class'/Game/Blueprints/Tanks/BasePhysicsTank.BasePhysicsTank_C'"));
-=======
-    static ConstructorHelpers::FObjectFinder<UClass> testTankBP(TEXT("Class'/Game/Blueprints/Tanks/TestTank.TestTank_C'"));
->>>>>>> parent of a7adc58... DRIFT TANKS
+    static ConstructorHelpers::FObjectFinder<UClass> testTankBP(TEXT("Class'/Game/Blueprints/Tanks/TestPTank.TestPTank_C'"));
     if (testTankBP.Succeeded())
     {
         _playerTestBP = testTankBP.Object;
     }
 
     // set default pawn class to our character class
-<<<<<<< HEAD
-    DefaultPawnClass = _playerTestBP; //ABasePTank::StaticClass(); //_playerTestBP; //ABaseTank::StaticClass(); //AProjectShellPawn::StaticClass();
-=======
-    DefaultPawnClass = _playerTestBP; //ABaseTank::StaticClass(); //AProjectShellPawn::StaticClass();
->>>>>>> parent of a7adc58... DRIFT TANKS
+    DefaultPawnClass = _playerTestBP;
 }
 
 void AProjectShellGameMode::StartPlay()
