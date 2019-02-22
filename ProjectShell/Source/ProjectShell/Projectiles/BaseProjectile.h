@@ -20,26 +20,26 @@ protected:
     virtual void Tick(float DeltaTime) override;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
-        UStaticMeshComponent* _projectileMesh;
+        UStaticMeshComponent* ProjectileMesh;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
-        class UProjectileMovementComponent* _projectileMovement;
+        class UProjectileMovementComponent* ProjectileMovement;
 
 public:
     UFUNCTION()
         void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
     UFUNCTION(BlueprintCallable, Category = "Get/Set")
-        FORCEINLINE UStaticMeshComponent* GetProjectileMesh() const { return _projectileMesh; }
+        FORCEINLINE UStaticMeshComponent* GetProjectileMesh() const { return ProjectileMesh; }
     UFUNCTION(BlueprintCallable, Category = "Get/Set")
-        FORCEINLINE UProjectileMovementComponent* GetProjectileMovement() const { return _projectileMovement; }
+        FORCEINLINE UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 
 protected:
     // Variables
     UPROPERTY(Category = "Damage", EditDefaultsOnly, BlueprintReadWrite)
-        float _damage;
+        float Damage;
     
 public:
     UFUNCTION(BlueprintCallable, Category = "Get/Set")
-        FORCEINLINE float GetDamage() const { return _damage; }
+        FORCEINLINE float GetDamage() const { return Damage; }
 };

@@ -31,13 +31,13 @@ public:
 
 protected:
     UPROPERTY(Category = "Health", EditDefaultsOnly, BlueprintReadWrite)
-        float _maximumHealth;
+        float MaximumHealth;
     
-    float _currentHealth;
+    float CurrentHealth;
 
 public:
     UFUNCTION(BlueprintCallable, Category = "Health")
-    FORCEINLINE float GetMaxHealth() const { return _maximumHealth; }
+    FORCEINLINE float GetMaxHealth() const { return MaximumHealth; }
     UFUNCTION(BlueprintCallable, Category = "Health")
-    FORCEINLINE float GetHealth() const { return _currentHealth; }
+    FORCEINLINE float GetHealth() const { return CurrentHealth; }
 };

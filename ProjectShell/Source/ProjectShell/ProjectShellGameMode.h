@@ -17,7 +17,7 @@ public:
 private:
     void StartPlay();
 
-    UClass* _playerTestBP;
+    UClass* PlayerTankBP;
 };
 
 

@@ -14,27 +14,27 @@ ABaseProjectile::ABaseProjectile()
     static ConstructorHelpers::FObjectFinder<UStaticMesh> projectileMeshAsset(TEXT("/Game/TwinStick/Meshes/TwinStickProjectile.TwinStickProjectile"));
 
     // Create mesh component for the projectile sphere
-    _projectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProjectileMesh"));
+    ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProjectileMesh"));
     if (projectileMeshAsset.Succeeded())
     {
-        _projectileMesh->SetStaticMesh(projectileMeshAsset.Object);
+        ProjectileMesh->SetStaticMesh(projectileMeshAsset.Object);
     }
-    _projectileMesh->BodyInstance.SetCollisionProfileName("Projectile");
-    _projectileMesh->OnComponentHit.AddDynamic(this, &ABaseProjectile::OnHit);
-    _projectileMesh->SetupAttachment(RootComponent);
-    RootComponent = _projectileMesh;
+    ProjectileMesh->BodyInstance.SetCollisionProfileName("Projectile");
+    ProjectileMesh->OnComponentHit.AddDynamic(this, &ABaseProjectile::OnHit);
+    ProjectileMesh->SetupAttachment(RootComponent);
+    RootComponent = ProjectileMesh;
 
     // Use a ProjectileMovementComponent to govern this projectile's movement
-    _projectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement0"));
-    _projectileMovement->UpdatedComponent = _projectileMesh;
-    _projectileMovement->InitialSpeed = 3000.f;
-    _projectileMovement->MaxSpeed = 3000.f;
-    _projectileMovement->bRotationFollowsVelocity = true;
-    _projectileMovement->bShouldBounce = true;
-    _projectileMovement->ProjectileGravityScale = 0.f; // No gravity
+    ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement0"));
+    ProjectileMovement->UpdatedComponent = ProjectileMesh;
+    ProjectileMovement->InitialSpeed = 3000.f;
+    ProjectileMovement->MaxSpeed = 3000.f;
+    ProjectileMovement->bRotationFollowsVelocity = true;
+    ProjectileMovement->bShouldBounce = true;
+    ProjectileMovement->ProjectileGravityScale = 0.f; // No gravity
 
     // Defaults
-    _damage = 1.f;
+    Damage = 1.f;
 }
 
 void ABaseProjectile::BeginPlay()

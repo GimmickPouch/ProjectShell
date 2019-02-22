@@ -11,11 +11,11 @@ AProjectShellGameMode::AProjectShellGameMode()
     static ConstructorHelpers::FObjectFinder<UClass> testTankBP(TEXT("Class'/Game/Blueprints/Tanks/TestPTank.TestPTank_C'"));
     if (testTankBP.Succeeded())
     {
-        _playerTestBP = testTankBP.Object;
+        PlayerTankBP = testTankBP.Object;
     }
 
-    // set default pawn class to our character class
-    DefaultPawnClass = _playerTestBP;
+    // Set default pawn class to our tank blueprint
+    DefaultPawnClass = PlayerTankBP;
 }
 
 void AProjectShellGameMode::StartPlay()

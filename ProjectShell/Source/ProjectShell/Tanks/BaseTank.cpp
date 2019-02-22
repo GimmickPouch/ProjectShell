@@ -26,7 +26,6 @@ ABaseTank::ABaseTank()
     TankMainBodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TankMesh"));
     TankMainBodyMesh->SetSimulatePhysics(true);
     RootComponent = TankMainBodyMesh;
-    TankMainBodyMesh->OnComponentHit.AddDynamic(this, &ABaseTank::OnHit);
     TankMainBodyMesh->bGenerateOverlapEvents = true;
 
     CannonBase = CreateDefaultSubobject<USceneComponent>(TEXT("CannonPivot"));
@@ -58,6 +57,12 @@ ABaseTank::ABaseTank()
     FireRate = 0.1f;
     bCanFire = true;
     CannonRotation = FRotator();
+}
+
+void ABaseTank::BeginPlay()
+{
+    Super::BeginPlay();
+    TankMainBodyMesh->OnComponentHit.AddDynamic(this, &ABaseTank::OnHit);
 }
 
 void ABaseTank::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)

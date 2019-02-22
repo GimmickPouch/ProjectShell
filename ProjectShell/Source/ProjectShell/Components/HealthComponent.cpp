@@ -8,14 +8,14 @@ UHealthComponent::UHealthComponent()
     PrimaryComponentTick.bCanEverTick = false;
 
     // Defaults
-    _maximumHealth = 10.f;
+    MaximumHealth = 10.f;
 }
 
 void UHealthComponent::BeginPlay()
 {
     Super::BeginPlay();
 
-    _currentHealth = _maximumHealth;
+    CurrentHealth = MaximumHealth;
 }
 
 //void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -25,13 +25,13 @@ void UHealthComponent::BeginPlay()
 
 void UHealthComponent::TakeDamage(float damage)
 {
-    _currentHealth -= damage;
+    CurrentHealth -= damage;
 }
 
 const bool UHealthComponent::CheckDeath()
 {
     bool dead = false;
-    if (_currentHealth <= 0)
+    if (CurrentHealth <= 0)
     {
         dead = true;
     }
