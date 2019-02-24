@@ -14,6 +14,7 @@
 #include "Projectiles/BaseProjectile.h"
 #include "Components/HealthComponent.h"
 #include "Runtime/Engine/Classes/Components/BoxComponent.h"
+#include "Engine.h" // For debug on screen
 
 const FName ABaseTank::kMoveForwardBinding("MoveForward");
 const FName ABaseTank::kMoveRightBinding("MoveRight");
@@ -57,12 +58,20 @@ ABaseTank::ABaseTank()
     FireRate = 0.1f;
     bCanFire = true;
     CannonRotation = FRotator();
+
+    // Abilities
+    bCanUseSpecialAbility = true;
+    bCanUseDefensiveAbility = true;
+    SpecialAbilityCooldownSeconds = 5.f;
+    DefensiveAbilityCooldownSeconds = 5.f;
 }
 
 void ABaseTank::BeginPlay()
 {
     Super::BeginPlay();
     TankMainBodyMesh->OnComponentHit.AddDynamic(this, &ABaseTank::OnHit);
+
+    World = GetWorld();
 }
 
 void ABaseTank::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -112,7 +121,6 @@ void ABaseTank::UpdateTankLocation()
 
 void ABaseTank::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-    // Only add impulse and destroy projectile if we hit a physics
     if (OtherActor && OtherActor != this)
     {
         if (OtherActor->IsA(ABaseProjectile::StaticClass()))
@@ -153,19 +161,18 @@ void ABaseTank::FireShot(FVector fireDirection)
     // If we can fire and we are pressing fire stick in a direction
     if (bCanFire && fireDirection.SizeSquared() > 0.0f)
     {
-        UWorld* const world = GetWorld();
-        if (world && DefaultProjectile)
+        if (World && DefaultProjectile)
         {
             const FRotator fireRotation = fireDirection.Rotation();
             // Spawn projectile at an offset from this pawn
             const FVector spawnLocation = TankMainBodyMesh->GetComponentLocation() + fireRotation.RotateVector(BulletSpawnOffset);
             // Spawn the projectile
             const FActorSpawnParameters spawnParams = FActorSpawnParameters();
-            world->SpawnActor<ABaseProjectile>(DefaultProjectile, spawnLocation, fireRotation, spawnParams);
-            world->GetTimerManager().SetTimer(FireCooldownTimerHandle, this, &ABaseTank::ShotCooldownExpired, FireRate);
+            World->SpawnActor<ABaseProjectile>(DefaultProjectile, spawnLocation, fireRotation, spawnParams);
+            World->GetTimerManager().SetTimer(FireCooldownTimerHandle, this, &ABaseTank::ShotCooldownExpired, FireRate);
 
             // Try and play the sound if specified
-            if (FireSound != nullptr)
+            if (FireSound)
             {
                 UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
             }
@@ -182,14 +189,15 @@ void ABaseTank::ShotCooldownExpired()
 
 void ABaseTank::ActivateSpecialAbility()
 {
-    // TODO cooldown etc
-    SpecialAbilityAction();
-}
-
-void ABaseTank::ActivateDefensiveAbility()
-{
-    // TODO cooldown etc
-    DefensiveAbilityAction();
+    if (bCanUseSpecialAbility)
+    {
+        SpecialAbilityAction();
+        if (World)
+        {
+            bCanUseSpecialAbility = false;
+            World->GetTimerManager().SetTimer(SpecialAbilityTimerHandle, this, &ABaseTank::SpecialAbilityCooldownExpired, SpecialAbilityCooldownSeconds);
+        }
+    }
 }
 
 void ABaseTank::SpecialAbilityAction_Implementation()
@@ -197,7 +205,34 @@ void ABaseTank::SpecialAbilityAction_Implementation()
     // Base implementation to be extended by Blueprint...
 }
 
+void ABaseTank::SpecialAbilityCooldownExpired()
+{
+    bCanUseSpecialAbility = true;
+}
+
+void ABaseTank::ActivateDefensiveAbility()
+{
+    if (bCanUseDefensiveAbility)
+    {
+        DefensiveAbilityAction();
+        if (World)
+        {
+            bCanUseDefensiveAbility = false;
+            World->GetTimerManager().SetTimer(DefensiveAbilityTimerHandle, this, &ABaseTank::DefensiveAbilityCooldownExpired, DefensiveAbilityCooldownSeconds);
+        }
+        if (GEngine)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 4.f, FColor::Yellow, TEXT("Special ability used"));
+        }
+    }
+}
+
 void ABaseTank::DefensiveAbilityAction_Implementation()
 {
     // Base implementation to be extended by Blueprint...
+}
+
+void ABaseTank::DefensiveAbilityCooldownExpired()
+{
+    bCanUseDefensiveAbility = true;
 }

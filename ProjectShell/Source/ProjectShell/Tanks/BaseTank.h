@@ -45,11 +45,28 @@ protected:
         void DefensiveAbilityAction();
     virtual void DefensiveAbilityAction_Implementation();
 
+    void SpecialAbilityCooldownExpired();
+    void DefensiveAbilityCooldownExpired();
+
+    FTimerHandle SpecialAbilityTimerHandle;
+    FTimerHandle DefensiveAbilityTimerHandle;
+
+    UPROPERTY(Category = Abilities, EditAnywhere, BlueprintReadWrite)
+        float SpecialAbilityCooldownSeconds;
+
+    UPROPERTY(Category = Abilities, EditAnywhere, BlueprintReadWrite)
+        float DefensiveAbilityCooldownSeconds;
+
+    bool bCanUseSpecialAbility;
+    bool bCanUseDefensiveAbility;
+
 protected:
     static const FName kMoveForwardBinding;
     static const FName kMoveRightBinding;
     static const FName kFireForwardBinding;
     static const FName kFireRightBinding;
+
+    UWorld* World;
 
     UPROPERTY(Category = Mesh, EditDefaultsOnly, BlueprintReadOnly)
         class UStaticMeshComponent* TankMainBodyMesh;
