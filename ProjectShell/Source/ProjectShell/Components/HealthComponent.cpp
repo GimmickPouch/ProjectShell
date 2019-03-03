@@ -8,7 +8,7 @@ UHealthComponent::UHealthComponent()
     PrimaryComponentTick.bCanEverTick = false;
 
     // Defaults
-    MaximumHealth = 10.f;
+    MaximumHealth = 5.f;
 }
 
 void UHealthComponent::BeginPlay()

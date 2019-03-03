@@ -52,16 +52,13 @@ ABaseTank::ABaseTank()
 
     // Movement
     MoveSpeed = 1000.0f;
+    AccelerationSeconds = 0.5f;
 
     // Shooting
     BulletSpawnOffset = FVector(120.f, 0.f, 0.f);
-    FireRate = 0.1f;
-    bCanFire = true;
-    CannonRotation = FRotator();
+    FireRate = 1.f;
 
     // Abilities
-    bCanUseSpecialAbility = true;
-    bCanUseDefensiveAbility = true;
     SpecialAbilityCooldownSeconds = 5.f;
     DefensiveAbilityCooldownSeconds = 5.f;
 }
@@ -72,6 +69,14 @@ void ABaseTank::BeginPlay()
     TankMainBodyMesh->OnComponentHit.AddDynamic(this, &ABaseTank::OnHit);
 
     World = GetWorld();
+
+    // Shooting
+    bCanFire = true;
+    CannonRotation = FRotator();
+
+    // Abilities
+    bCanUseSpecialAbility = true;
+    bCanUseDefensiveAbility = true;
 }
 
 void ABaseTank::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -106,7 +111,10 @@ void ABaseTank::UpdateTankLocation()
     const FVector moveDirection = FVector(forwardValue, rightValue, 0.f).GetClampedToMaxSize(1.0f);
 
     // Calculate  movement
-    const FVector movement = moveDirection * MoveSpeed * GetWorld()->GetDeltaSeconds();
+    AccelerationLerpSeconds += World->GetDeltaSeconds();
+    AccelerationLerpSeconds = FMath::Clamp(AccelerationLerpSeconds, 0.f, AccelerationSeconds);
+    const float currentAccelerationNormalizedPercentage = AccelerationSeconds == 0 ? 1 : AccelerationLerpSeconds / AccelerationSeconds;
+    const FVector movement = moveDirection * (MoveSpeed * currentAccelerationNormalizedPercentage) * GetWorld()->GetDeltaSeconds();
 
     // If non-zero size, move this actor
     if (movement.SizeSquared() > 0.0f)
@@ -116,6 +124,10 @@ void ABaseTank::UpdateTankLocation()
 
         // Reset cannon rotation as it's parented to the tank
         CannonBase->SetWorldRotation(CannonRotation);
+    }
+    else
+    {
+        AccelerationLerpSeconds = 0;
     }
 }
 

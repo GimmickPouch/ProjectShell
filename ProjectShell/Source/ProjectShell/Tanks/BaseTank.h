@@ -77,8 +77,11 @@ protected:
     UPROPERTY(Category = Mesh, EditDefaultsOnly, BlueprintReadOnly)
         class UStaticMeshComponent* CannonStaticMesh;
 
-    UPROPERTY(Category = Gameplay, EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = Movement, EditAnywhere, BlueprintReadWrite)
         float MoveSpeed;
+    UPROPERTY(Category = Movement, EditAnywhere, BlueprintReadWrite)
+        float AccelerationSeconds;
+    float AccelerationLerpSeconds;
 
     // Health
     UPROPERTY(Category = Health, VisibleAnywhere, BlueprintReadOnly)
