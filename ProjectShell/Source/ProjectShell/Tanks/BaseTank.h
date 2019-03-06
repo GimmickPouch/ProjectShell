@@ -37,28 +37,23 @@ protected:
     void ActivateSpecialAbility();
     void ActivateDefensiveAbility();
 
-    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Abilities")
-        void SpecialAbilityAction();
-    virtual void SpecialAbilityAction_Implementation();
+    UPROPERTY(Category = "Abilities", EditAnywhere, BlueprintReadWrite)
+        TSubclassOf<class UBaseAbility> SpecialAbilityEquipped;
 
-    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Abilities")
-        void DefensiveAbilityAction();
-    virtual void DefensiveAbilityAction_Implementation();
+    UPROPERTY(Category = "Abilities", EditAnywhere, BlueprintReadWrite)
+        TSubclassOf<class UBaseAbility> DefensiveAbilityEquipped;
 
-    void SpecialAbilityCooldownExpired();
-    void DefensiveAbilityCooldownExpired();
-
-    FTimerHandle SpecialAbilityTimerHandle;
-    FTimerHandle DefensiveAbilityTimerHandle;
-
-    UPROPERTY(Category = Abilities, EditAnywhere, BlueprintReadWrite)
-        float SpecialAbilityCooldownSeconds;
-
-    UPROPERTY(Category = Abilities, EditAnywhere, BlueprintReadWrite)
-        float DefensiveAbilityCooldownSeconds;
+    class UBaseAbility* SpecialAbilityInstance;
+    class UBaseAbility* DefensiveAbilityInstance;
 
     bool bCanUseSpecialAbility;
     bool bCanUseDefensiveAbility;
+
+public:
+    UFUNCTION(BlueprintCallable, Category = "Abilities Get/Set")
+        FORCEINLINE class UBaseAbility* GetSpecialAbility() const { return SpecialAbilityInstance; }
+    UFUNCTION(BlueprintCallable, Category = "Abilities Get/Set")
+        FORCEINLINE class UBaseAbility* GetDefensiveAbility() const { return DefensiveAbilityInstance; }
 
 protected:
     static const FName kMoveForwardBinding;
@@ -89,7 +84,7 @@ protected:
 
     // Shooting
     UPROPERTY(Category = "Shooting", EditAnywhere, BlueprintReadWrite)
-        UClass* DefaultProjectile;
+        TSubclassOf<class ABaseProjectile> DefaultProjectile;
 
     UPROPERTY(Category = "Shooting", EditAnywhere, BlueprintReadWrite)
         FVector BulletSpawnOffset;
@@ -103,9 +98,9 @@ protected:
 
 public:
     UFUNCTION(BlueprintCallable, Category = "Get/Set")
-    FORCEINLINE class UStaticMeshComponent* GetStaticMesh() const { return TankMainBodyMesh; }
+        FORCEINLINE class UStaticMeshComponent* GetStaticMesh() const { return TankMainBodyMesh; }
     UFUNCTION(BlueprintCallable, Category = "Get/Set")
-    FORCEINLINE class UHealthComponent* GetHealthComponent() const { return HealthComponent; }
+        FORCEINLINE class UHealthComponent* GetHealthComponent() const { return HealthComponent; }
     
     // Audio 
 protected:

@@ -14,6 +14,7 @@
 #include "Projectiles/BaseProjectile.h"
 #include "Components/HealthComponent.h"
 #include "Runtime/Engine/Classes/Components/BoxComponent.h"
+#include "Abilities/BaseAbility.h"
 #include "Engine.h" // For debug on screen
 
 const FName ABaseTank::kMoveForwardBinding("MoveForward");
@@ -57,10 +58,6 @@ ABaseTank::ABaseTank()
     // Shooting
     BulletSpawnOffset = FVector(120.f, 0.f, 0.f);
     FireRate = 1.f;
-
-    // Abilities
-    SpecialAbilityCooldownSeconds = 5.f;
-    DefensiveAbilityCooldownSeconds = 5.f;
 }
 
 void ABaseTank::BeginPlay()
@@ -75,6 +72,16 @@ void ABaseTank::BeginPlay()
     CannonRotation = FRotator();
 
     // Abilities
+    if (SpecialAbilityEquipped)
+    {
+        SpecialAbilityInstance = NewObject<UBaseAbility>(this, SpecialAbilityEquipped);
+    }
+
+    if (DefensiveAbilityEquipped)
+    {
+        DefensiveAbilityInstance = NewObject<UBaseAbility>(this, DefensiveAbilityEquipped);
+    }
+
     bCanUseSpecialAbility = true;
     bCanUseDefensiveAbility = true;
 }
@@ -201,50 +208,16 @@ void ABaseTank::ShotCooldownExpired()
 
 void ABaseTank::ActivateSpecialAbility()
 {
-    if (bCanUseSpecialAbility)
+    if (bCanUseSpecialAbility && SpecialAbilityInstance)
     {
-        SpecialAbilityAction();
-        if (World)
-        {
-            bCanUseSpecialAbility = false;
-            World->GetTimerManager().SetTimer(SpecialAbilityTimerHandle, this, &ABaseTank::SpecialAbilityCooldownExpired, SpecialAbilityCooldownSeconds);
-        }
+        SpecialAbilityInstance->ActivateAbility();
     }
-}
-
-void ABaseTank::SpecialAbilityAction_Implementation()
-{
-    // Base implementation to be extended by Blueprint...
-}
-
-void ABaseTank::SpecialAbilityCooldownExpired()
-{
-    bCanUseSpecialAbility = true;
 }
 
 void ABaseTank::ActivateDefensiveAbility()
 {
-    if (bCanUseDefensiveAbility)
+    if (bCanUseDefensiveAbility && DefensiveAbilityInstance)
     {
-        DefensiveAbilityAction();
-        if (World)
-        {
-            bCanUseDefensiveAbility = false;
-            World->GetTimerManager().SetTimer(DefensiveAbilityTimerHandle, this, &ABaseTank::DefensiveAbilityCooldownExpired, DefensiveAbilityCooldownSeconds);
-        }
-        if (GEngine)
-        {
-            GEngine->AddOnScreenDebugMessage(-1, 4.f, FColor::Yellow, TEXT("Special ability used"));
-        }
+        DefensiveAbilityInstance->ActivateAbility();
     }
-}
-
-void ABaseTank::DefensiveAbilityAction_Implementation()
-{
-    // Base implementation to be extended by Blueprint...
-}
-
-void ABaseTank::DefensiveAbilityCooldownExpired()
-{
-    bCanUseDefensiveAbility = true;
 }
