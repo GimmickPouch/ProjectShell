@@ -7,14 +7,14 @@
 #include "TimerManager.h"
 #include "BaseAbility.generated.h"
 
-UCLASS(Blueprintable)
-class PROJECTSHELL_API UBaseAbility : public UObject
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+class PROJECTSHELL_API UBaseAbility : public UActorComponent
 {
     GENERATED_BODY()
 
 public:
     UBaseAbility();
-    
+
 public:
     void ActivateAbility();
 
