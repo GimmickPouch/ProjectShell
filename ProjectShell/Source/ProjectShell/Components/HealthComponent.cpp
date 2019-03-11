@@ -28,6 +28,23 @@ void UHealthComponent::TakeDamage(float damage)
     CurrentHealth -= damage;
 }
 
+void UHealthComponent::IncreaseHealth(float health, bool allowOverheal)
+{
+    CurrentHealth += health;
+    if (!allowOverheal && CurrentHealth > MaximumHealth)
+    {
+        CurrentHealth = MaximumHealth;
+    }
+}
+
+void UHealthComponent::IncreaseHealthToFull(bool reduceHealthIfOver)
+{
+    if (CurrentHealth < MaximumHealth || reduceHealthIfOver)
+    {
+        CurrentHealth = MaximumHealth;
+    }
+}
+
 const bool UHealthComponent::CheckDeath()
 {
     bool dead = false;

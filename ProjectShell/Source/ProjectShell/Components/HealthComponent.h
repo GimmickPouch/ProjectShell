@@ -23,6 +23,12 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Damage")
         void TakeDamage(float damage);
 
+    UFUNCTION(BlueprintCallable, Category = "Heal")
+        void IncreaseHealth(float health, bool allowOverheal = false);
+
+    UFUNCTION(BlueprintCallable, Category = "Heal")
+        void IncreaseHealthToFull(bool reduceHealthIfOver = false);
+
     UFUNCTION(BlueprintCallable, Category = "Health")
         const bool CheckDeath();
 
