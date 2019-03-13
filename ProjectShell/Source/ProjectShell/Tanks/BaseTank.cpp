@@ -69,7 +69,7 @@ void ABaseTank::BeginPlay()
 
     // Shooting
     bCanFire = true;
-    CannonRotation = FRotator();
+    CannonRotation = GetActorRotation();
 
     // Abilities
     if (SpecialAbilityEquipped)
@@ -106,6 +106,11 @@ void ABaseTank::Tick(float DeltaSeconds)
 {
     UpdateTankLocation();
     UpdateCannonRotation();
+
+    if (bCanFire) // TEMP
+    {
+        DrawDebugLine(World, CannonStaticMesh->GetComponentLocation(), CannonStaticMesh->GetComponentLocation() + (CannonRotation.Vector() * 300), FColor::Red, false, -1.0f, 0, 10.0f);
+    }
 }
 
 void ABaseTank::UpdateTankLocation()
