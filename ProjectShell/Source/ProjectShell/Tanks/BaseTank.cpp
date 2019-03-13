@@ -69,7 +69,7 @@ void ABaseTank::BeginPlay()
 
     // Shooting
     bCanFire = true;
-    CannonRotation = FRotator();
+    CannonRotation = GetActorRotation();
 
     // Abilities
     if (SpecialAbilityEquipped)
@@ -106,6 +106,11 @@ void ABaseTank::Tick(float DeltaSeconds)
 {
     UpdateTankLocation();
     UpdateCannonRotation();
+
+    if (bCanFire) // TEMP
+    {
+        DrawDebugLine(World, CannonStaticMesh->GetComponentLocation(), CannonStaticMesh->GetComponentLocation() + (CannonRotation.Vector() * 300), FColor::Red, false, -1.0f, 0, 10.0f);
+    }
 }
 
 void ABaseTank::UpdateTankLocation()
@@ -115,7 +120,13 @@ void ABaseTank::UpdateTankLocation()
     const float rightValue = GetInputAxisValue(kMoveRightBinding);
 
     // Clamp max size so that (X=1, Y=1) doesn't cause faster movement in diagonal directions
-    const FVector moveDirection = FVector(forwardValue, rightValue, 0.f).GetClampedToMaxSize(1.0f);
+    FVector moveDirection = FVector(forwardValue, rightValue, 0.f).GetClampedToMaxSize(1.0f);
+
+    // TODO - Only grab this once. This is inefficient
+    MainCameraYawRotation = FRotator(0.f, UGameplayStatics::GetPlayerController(World, 0)->PlayerCameraManager->GetCameraRotation().Yaw, 0.f);
+
+    // Rotate vector based on the camera rotation
+    moveDirection = MainCameraYawRotation.RotateVector(moveDirection);
 
     // Calculate  movement
     AccelerationLerpSeconds += World->GetDeltaSeconds();

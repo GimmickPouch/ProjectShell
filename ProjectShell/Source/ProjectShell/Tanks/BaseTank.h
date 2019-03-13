@@ -78,6 +78,8 @@ protected:
         float AccelerationSeconds;
     float AccelerationLerpSeconds;
 
+    FRotator MainCameraYawRotation;
+
     // Health
     UPROPERTY(Category = Health, VisibleAnywhere, BlueprintReadOnly)
         class UHealthComponent* HealthComponent;
