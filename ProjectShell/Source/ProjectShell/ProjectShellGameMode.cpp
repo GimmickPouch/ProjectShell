@@ -26,6 +26,5 @@ void AProjectShellGameMode::StartPlay()
     if (world != nullptr)
     {
         UGameplayStatics::CreatePlayer(world, 1, true);
-        UGameplayStatics::CreatePlayer(world, 2, true);
     }
 }
