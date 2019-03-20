@@ -171,7 +171,9 @@ void ABaseTank::UpdateCannonRotation()
 {
     const float fireForwardValue = GetInputAxisValue(kFireForwardBinding);
     const float fireRightValue = GetInputAxisValue(kFireRightBinding);
-    const FVector fireDirection = FVector(fireForwardValue, fireRightValue, 0.f);
+    FVector fireDirection = FVector(fireForwardValue, fireRightValue, 0.f);
+
+    fireDirection = MainCameraYawRotation.RotateVector(fireDirection);
 
     // If we are pressing cannon aim stick in a direction
     if (fireDirection.SizeSquared() > 0.0f)
