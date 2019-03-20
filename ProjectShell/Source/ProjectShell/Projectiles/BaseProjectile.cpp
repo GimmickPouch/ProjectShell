@@ -10,6 +10,9 @@
 
 ABaseProjectile::ABaseProjectile()
 {
+    PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.bStartWithTickEnabled = true;
+
     // Static reference to the mesh to use for the projectile
     static ConstructorHelpers::FObjectFinder<UStaticMesh> projectileMeshAsset(TEXT("/Game/TwinStick/Meshes/TwinStickProjectile.TwinStickProjectile"));
 
@@ -35,18 +38,26 @@ ABaseProjectile::ABaseProjectile()
 
     // Defaults
     Damage = 1.f;
+    DestroyAfterSeconds = 0;
 }
 
 void ABaseProjectile::BeginPlay()
 {
     Super::BeginPlay();
-    
+
+    LifeSeconds = 0;
 }
 
 void ABaseProjectile::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
+    LifeSeconds += DeltaTime;
+
+    if (DestroyAfterSeconds > 0 && LifeSeconds >= DestroyAfterSeconds)
+    {
+        Destroy();
+    }
 }
 
 void ABaseProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)

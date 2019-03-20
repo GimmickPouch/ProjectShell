@@ -38,6 +38,11 @@ protected:
     // Variables
     UPROPERTY(Category = "Damage", EditDefaultsOnly, BlueprintReadWrite)
         float Damage;
+
+    UPROPERTY(Category = "Shooting", EditDefaultsOnly, BlueprintReadWrite)
+        float DestroyAfterSeconds;
+
+    float LifeSeconds;
     
 public:
     UFUNCTION(BlueprintCallable, Category = "Get/Set")
