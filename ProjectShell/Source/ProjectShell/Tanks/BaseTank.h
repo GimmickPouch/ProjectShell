@@ -32,6 +32,14 @@ protected:
     void FireShot(FVector FireDirection);
     void ShotCooldownExpired();
 
+public:
+    // Health
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Death")
+        void PreDeath();
+    virtual void PreDeath_Implementation();
+
+    void OnDeath();
+
     // Abilities
 protected:
     void ActivateSpecialAbility();

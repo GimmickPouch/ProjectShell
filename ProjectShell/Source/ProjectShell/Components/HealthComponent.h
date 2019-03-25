@@ -20,6 +20,9 @@ protected:
 
     //virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 public:	
+    UFUNCTION(BlueprintCallable, Category = "Death")
+        void SetDeathFunction(class ABaseTank* tank);
+
     UFUNCTION(BlueprintCallable, Category = "Damage")
         void TakeDamage(float damage);
 
@@ -32,10 +35,10 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Health")
         const bool CheckDeath();
 
-    UFUNCTION(BlueprintCallable, Category = "Damage")
-        const bool TakeDamageAndCheckDeath(float damage);
-
 protected:
+    DECLARE_DELEGATE(OnDeath);
+    OnDeath DeathFunction;
+
     UPROPERTY(Category = "Health", EditDefaultsOnly, BlueprintReadWrite)
         float MaximumHealth;
     

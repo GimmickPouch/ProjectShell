@@ -43,6 +43,7 @@ ABaseTank::ABaseTank()
     }
     
     HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+    HealthComponent->SetDeathFunction(this);
 
     // Cache our sound effect
     static ConstructorHelpers::FObjectFinder<USoundBase> fireAudio(TEXT("/Game/TwinStick/Audio/TwinStickFire.TwinStickFire"));
@@ -158,10 +159,7 @@ void ABaseTank::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimiti
             ABaseProjectile* projectile = Cast<ABaseProjectile>(OtherActor);
             if (projectile && HealthComponent)
             {
-                if (HealthComponent->TakeDamageAndCheckDeath(projectile->GetDamage()))
-                {
-                    Destroy();
-                }
+                HealthComponent->TakeDamage(projectile->GetDamage());
             }
         }
     }
@@ -217,6 +215,18 @@ void ABaseTank::FireShot(FVector fireDirection)
 void ABaseTank::ShotCooldownExpired()
 {
     bCanFire = true;
+}
+
+void ABaseTank::PreDeath_Implementation()
+{
+
+}
+
+void ABaseTank::OnDeath()
+{
+    PreDeath();
+    //GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, TEXT("DEATH"));
+    Destroy();
 }
 
 void ABaseTank::ActivateSpecialAbility()

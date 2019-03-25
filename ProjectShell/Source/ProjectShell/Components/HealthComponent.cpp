@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "HealthComponent.h"
-
+#include "Tanks/BaseTank.h"
 
 UHealthComponent::UHealthComponent()
 {
@@ -23,9 +23,18 @@ void UHealthComponent::BeginPlay()
 //	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 //}
 
+void UHealthComponent::SetDeathFunction(ABaseTank* tank)
+{
+    DeathFunction.BindUObject(tank, &ABaseTank::OnDeath);
+}
+
 void UHealthComponent::TakeDamage(float damage)
 {
     CurrentHealth -= damage;
+    if (CheckDeath())
+    {
+        DeathFunction.ExecuteIfBound();
+    }
 }
 
 void UHealthComponent::IncreaseHealth(float health, bool allowOverheal)
@@ -54,10 +63,3 @@ const bool UHealthComponent::CheckDeath()
     }
     return dead;
 }
-
-const bool UHealthComponent::TakeDamageAndCheckDeath(float damage)
-{
-    TakeDamage(damage);
-    return CheckDeath();
-}
-
