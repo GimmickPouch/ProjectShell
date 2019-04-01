@@ -59,6 +59,7 @@ ABaseTank::ABaseTank()
     // Shooting
     BulletSpawnOffset = FVector(120.f, 0.f, 0.f);
     FireRate = 1.f;
+    bLockCannonRotation = true;
 }
 
 void ABaseTank::BeginPlay()
@@ -108,9 +109,9 @@ void ABaseTank::Tick(float DeltaSeconds)
     UpdateTankLocation();
     UpdateCannonRotation();
 
-    if (bCanFire) // TEMP
+    if (bCanFire && CannonBase) // TEMP
     {
-        DrawDebugLine(World, CannonStaticMesh->GetComponentLocation(), CannonStaticMesh->GetComponentLocation() + (CannonRotation.Vector() * 300), FColor::Red, false, -1.0f, 0, 10.0f);
+        DrawDebugLine(World, CannonStaticMesh->GetComponentLocation(), CannonStaticMesh->GetComponentLocation() + (CannonBase->GetComponentRotation().Vector() * 300), FColor::Red, false, -1.0f, 0, 10.0f);
     }
 }
 
@@ -140,9 +141,6 @@ void ABaseTank::UpdateTankLocation()
     {
         const FRotator newRotation = movement.Rotation();
         RootComponent->MoveComponent(movement, newRotation, false);
-
-        // Reset cannon rotation as it's parented to the tank
-        CannonBase->SetWorldRotation(CannonRotation);
     }
     else
     {
@@ -173,17 +171,27 @@ void ABaseTank::UpdateCannonRotation()
 
     fireDirection = MainCameraYawRotation.RotateVector(fireDirection);
 
+    bool updateCannonRotation = fireDirection.SizeSquared() > 0.0f;
+
     // If we are pressing cannon aim stick in a direction
-    if (fireDirection.SizeSquared() > 0.0f)
+    if (updateCannonRotation)
     {
         CannonRotation = fireDirection.Rotation();
+    }
+
+    if (updateCannonRotation || bLockCannonRotation)
+    {
+        // Reset cannon rotation as it's parented to the tank
         CannonBase->SetWorldRotation(CannonRotation);
     }
 }
 
 void ABaseTank::FireShot()
 {
-    FireShot(CannonRotation.Vector());
+    if (CannonBase)
+    {
+        FireShot(CannonBase->GetComponentRotation().Vector());
+    }
 }
 
 void ABaseTank::FireShot(FVector fireDirection)
