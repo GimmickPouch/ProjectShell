@@ -102,6 +102,9 @@ protected:
     UPROPERTY(Category = "Shooting", EditAnywhere, BlueprintReadWrite)
         float FireRate;
 
+    UPROPERTY(Category = "Shooting", EditAnywhere, BlueprintReadWrite)
+        bool bLockCannonRotation;
+
     bool bCanFire;
     FRotator CannonRotation;
     FTimerHandle FireCooldownTimerHandle;
