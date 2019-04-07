@@ -9,5 +9,6 @@ public class ProjectShell : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
-	}
+        DynamicallyLoadedModuleNames.Add("OnlineSubsystemSteam");
+    }
 }
