@@ -60,6 +60,8 @@ ABaseTank::ABaseTank()
     BulletSpawnOffset = FVector(120.f, 0.f, 0.f);
     FireRate = 1.f;
     bLockCannonRotation = true;
+
+    PlayerIndex = -1;
 }
 
 void ABaseTank::BeginPlay()

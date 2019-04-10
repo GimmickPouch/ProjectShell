@@ -71,6 +71,8 @@ protected:
 
     UWorld* World;
 
+    int PlayerIndex;
+
     UPROPERTY(Category = Mesh, EditDefaultsOnly, BlueprintReadOnly)
         class UStaticMeshComponent* TankMainBodyMesh;
 
@@ -110,6 +112,11 @@ protected:
     FTimerHandle FireCooldownTimerHandle;
 
 public:
+    UFUNCTION(BlueprintCallable, Category = "Get/Set")
+        FORCEINLINE int GetPlayerIndex() const { return PlayerIndex; }
+    UFUNCTION(BlueprintCallable, Category = "Get/Set")
+        void SetPlayerIndex(int newIndex) { PlayerIndex = newIndex; }
+
     UFUNCTION(BlueprintCallable, Category = "Get/Set")
         FORCEINLINE class UStaticMeshComponent* GetStaticMesh() const { return TankMainBodyMesh; }
     UFUNCTION(BlueprintCallable, Category = "Get/Set")
