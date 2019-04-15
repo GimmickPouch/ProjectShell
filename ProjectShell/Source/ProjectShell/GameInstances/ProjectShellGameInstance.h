@@ -40,6 +40,7 @@ public:
                 if (Singletons[i] != nullptr && Singletons[i]->IsA(T::StaticClass()))
                 {
                     singleton = (T*)Singletons[i];
+                    break;
                 }
             }
         }
