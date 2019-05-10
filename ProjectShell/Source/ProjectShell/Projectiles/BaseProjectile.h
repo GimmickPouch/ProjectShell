@@ -10,9 +10,10 @@ UCLASS()
 class PROJECTSHELL_API ABaseProjectile : public AActor
 {
     GENERATED_BODY()
-    
-public:	
+
+public:
     ABaseProjectile();
+    ABaseProjectile(class ABaseTank* owner);
 
 protected:
     virtual void BeginPlay() override;
@@ -43,8 +44,15 @@ protected:
         float DestroyAfterSeconds;
 
     float LifeSeconds;
-    
+
+    class ABaseTank* ShootingTank;
+
 public:
     UFUNCTION(BlueprintCallable, Category = "Get/Set")
         FORCEINLINE float GetDamage() const { return Damage; }
+
+    UFUNCTION(BlueprintCallable, Category = "Get/Set")
+        FORCEINLINE class ABaseTank* GetShootingTank() const { return ShootingTank; }
+    UFUNCTION(BlueprintCallable, Category = "Get/Set")
+        void SetShootingTank(class ABaseTank* shootingTank) { ShootingTank = shootingTank; };
 };

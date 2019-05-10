@@ -41,7 +41,7 @@ ABaseTank::ABaseTank()
     {
         DefaultProjectile = testProjectileBP.Object;
     }
-    
+
     HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
     HealthComponent->SetDeathFunction(this);
 
@@ -157,9 +157,12 @@ void ABaseTank::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimiti
         if (OtherActor->IsA(ABaseProjectile::StaticClass()))
         {
             ABaseProjectile* projectile = Cast<ABaseProjectile>(OtherActor);
-            if (projectile && HealthComponent)
+            if (projectile && projectile->GetShootingTank() != this)
             {
-                HealthComponent->TakeDamage(projectile->GetDamage());
+                if (HealthComponent)
+                {
+                    HealthComponent->TakeDamage(projectile->GetDamage());
+                }
             }
         }
     }
@@ -208,7 +211,12 @@ void ABaseTank::FireShot(FVector fireDirection)
             const FVector spawnLocation = TankMainBodyMesh->GetComponentLocation() + fireRotation.RotateVector(BulletSpawnOffset);
             // Spawn the projectile
             const FActorSpawnParameters spawnParams = FActorSpawnParameters();
-            World->SpawnActor<ABaseProjectile>(DefaultProjectile, spawnLocation, fireRotation, spawnParams);
+            ABaseProjectile* projectile = World->SpawnActor<ABaseProjectile>(DefaultProjectile, spawnLocation, fireRotation, spawnParams);
+            if (projectile)
+            {
+                projectile->SetShootingTank(this);
+            }
+
             World->GetTimerManager().SetTimer(FireCooldownTimerHandle, this, &ABaseTank::ShotCooldownExpired, FireRate);
 
             // Try and play the sound if specified

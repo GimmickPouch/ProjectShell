@@ -39,6 +39,8 @@ ABaseProjectile::ABaseProjectile()
     // Defaults
     Damage = 1.f;
     DestroyAfterSeconds = 0;
+
+    ShootingTank = nullptr;
 }
 
 void ABaseProjectile::BeginPlay()
@@ -62,11 +64,13 @@ void ABaseProjectile::Tick(float DeltaTime)
 
 void ABaseProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-    // Only add impulse and destroy projectile if we hit a physics
-    if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
+    if (OtherActor != ((AActor*)GetShootingTank()))
     {
-        OtherComp->AddImpulseAtLocation(GetVelocity() * 20.0f, GetActorLocation());
-    }
+        if (OtherActor != NULL && OtherActor != this && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
+        {
+            OtherComp->AddImpulseAtLocation(GetVelocity() * 20.0f, GetActorLocation());
+        }
 
-    Destroy();
+        Destroy();
+    }
 }
